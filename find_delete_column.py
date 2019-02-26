@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 """
  mysqlbinlog处理后的binlog文件，查找 where 区段中列的具体值 
- pthon ./find_delete_column file_name    
+ pthon ./find_delete_column.py file_name    
 """
 
 from sys import argv  
@@ -10,8 +10,8 @@ import re
 
 script, file_name = argv
 
-"""输出文件名：原文件名后加 _insert.out"""
-fout = open(file_name + '_insert.out','w+')
+"""输出文件名：原文件名后加 _rollback.out"""
+fout = open(file_name + '_rollback.out','w+')
 fin = open(file_name)
 
 
