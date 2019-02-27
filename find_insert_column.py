@@ -36,7 +36,7 @@ for line in fin.readlines():
             need_write = False
                     
     elif operator.eq(re.findall(r"###   @(\d+)",line),['1']) == True: 
-            colvalue =  re.findall(r"@1=([^/*]+)",line)
+            colvalue =  re.findall(r"@1=(.*?)/\*",line)
             sep = ','
             
             if len(content) == 0 :

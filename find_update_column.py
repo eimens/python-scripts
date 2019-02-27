@@ -44,7 +44,7 @@ for line in fin.readlines():
                 need_write = False
                     
         elif operator.eq(re.findall(r"###   @(\d+)",line),poslist) == True: 
-            colvalue =  re.findall(r"@" + onepos + "=([^/*]+)",line)
+            colvalue =  re.findall(r"@" + onepos + "=(.*?)/\*",line)
             sep = ','
             
             if len(content) == 0 :

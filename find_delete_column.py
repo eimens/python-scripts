@@ -11,7 +11,7 @@ import re
 script, file_name = argv
 
 """输出文件名：原文件名后加 _rollback.out"""
-fout = open(file_name + '_rollback.out','w+')
+fout = open(file_name + '_rollback','w+')
 fin = open(file_name)
 
 
@@ -38,7 +38,7 @@ for line in fin.readlines():
         pos = sep.join(re.findall(r"###   @(\d+)",line))
 
         if len(pos) > 0:
-            colvalue =  re.findall(r"@" + pos + "=([^/*]+)",line) 
+            colvalue =  re.findall(r"@" + pos + "=(.*?)/\*",line) 
 
             if len(content) == 0 :
                 content = sep.join(colvalue).rstrip()

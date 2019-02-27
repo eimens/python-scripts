@@ -82,7 +82,7 @@ def find_update(file_name, columns):
                     need_write = False
                     
             elif operator.eq(re.findall(r"###   @(\d+)",line),poslist) == True: 
-                colvalue =  re.findall(r"@" + onepos + "=(.*?)\/*",line)
+                colvalue =  re.findall(r"@" + onepos + "=(.*?)/\*",line)
                 sep = ','
             
                 if len(content) == 0 :
@@ -131,7 +131,7 @@ def find_insert(file_name):
                 need_write = False
                     
         elif operator.eq(re.findall(r"###   @(\d+)",line),['1']) == True: 
-            colvalue =  re.findall(r"@1=(.*?)\/*",line)
+            colvalue =  re.findall(r"@1=(.*?)/\*",line)
             sep = ','
             
             if len(content) == 0 :
@@ -183,7 +183,7 @@ def find_delete(file_name):
             pos = sep.join(re.findall(r"###   @(\d+)",line))
 
             if len(pos) > 0:
-                colvalue =  re.findall(r"@" + pos + "=(.*?)\/*",line) 
+                colvalue =  re.findall(r"@" + pos + "=(.*?)/\*",line) 
 
                 if len(content) == 0 :
                     content = sep.join(colvalue).rstrip()
