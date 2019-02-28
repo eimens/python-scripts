@@ -6,8 +6,9 @@ import os
 import sys
 import re
 import operator
+import time
 
-script, file_name, modifytype, columns, lookfor = argv
+script, file_name, modifytype, columns, timepos,lookfor = argv
 
 def find_text(file_name,lookfor):
     """
@@ -45,24 +46,26 @@ def find_text(file_name,lookfor):
     output_filename = file_name + ".out"
     return output_filename
 
-def find_update(file_name, columns):
+def find_update(file_name, columns, timepos):
     """
     mysqlbinlog处理后的binlog文件，查找where 和 set 区段中列的具体值 
     通过传入表结构中列位置处理
     传入参数：文件名，列的位置
     """
 
-    """输出文件名：原文件名后加 rollback.out"""
-    fout = open(file_name + 'rollback.out','w+')
+    """输出文件名：原文件名后加 rollback"""
+    fout = open(file_name + 'rollback','w+')
     fin = open(file_name)
 
 
     """第一次匹配where时, 还没有取得列的值,不需写到文件中去"""
     need_write = False
     content = ''
+    sep = ','
 
     """列位置传进来的参数是字符串，转为list, 通过for循环处理 """
     posvalue = columns.split(',')
+    timelist = timepos.split(',')
 
     """循环处理文件中的每一行"""
     for line in fin.readlines():
@@ -83,12 +86,23 @@ def find_update(file_name, columns):
                     
             elif operator.eq(re.findall(r"###   @(\d+)",line),poslist) == True: 
                 colvalue =  re.findall(r"@" + onepos + "=(.*?)/\*",line)
-                sep = ','
-            
+                strcolvalue = sep.join(colvalue).rstrip()
+                
+                """
+                binlog文件对 timestamp 列是以时间戳记录整型数字，需转换为字符串
+                时间戳:1482325511 转换为：2016-12-21 21:05:11
+                """
+                if onepos in timelist and strcolvalue <> "0":
+                    timeArray = time.localtime(int(strcolvalue))        
+                    strcolvalue = "'" + time.strftime("%Y-%m-%d %H:%M:%S",timeArray) + "'"
+                
+                if onepos in timelist and strcolvalue == "0":
+                    strcolvalue = "'0000-00-00 00:00:00'"
+                    
                 if len(content) == 0 :
-                    content = sep.join(colvalue).rstrip()
+                    content = strcolvalue
                 else:
-                    content += ',' + sep.join(colvalue).rstrip()    
+                    content += ',' + strcolvalue    
                                     
                 need_write = True
             
@@ -107,8 +121,8 @@ def find_insert(file_name):
     传入参数：file_name
     """
     
-    """输出文件名：原文件名后加 _rollback.out"""
-    fout = open(file_name + '_rollback.out','w+')
+    """输出文件名：原文件名后加 _rollback"""
+    fout = open(file_name + '_rollback','w+')
     fin = open(file_name)
 
 
@@ -149,14 +163,14 @@ def find_insert(file_name):
     fout.close()
     return
     
-def find_delete(file_name):
+def find_delete(file_name, timepos):
     """
     mysqlbinlog处理后的binlog文件，查找 where 区段中列的具体值 
-    传入参数：file_name
+    传入参数：file_name, timepos
     """
     
-    """输出文件名：原文件名后加 _rollback.out"""
-    fout = open(file_name + '_rollback.out','w+')
+    """输出文件名：原文件名后加 _rollback"""
+    fout = open(file_name + '_rollback','w+')
     fin = open(file_name)
 
 
@@ -164,6 +178,9 @@ def find_delete(file_name):
     need_write = False
     content = ''
     sep = ','
+    
+    """时间字段列位置传进来的参数是字符串，转为list处理"""
+    posvalue = timepos.split(',')
 
     """循环处理文件中的每一行"""
     for line in fin.readlines():
@@ -184,12 +201,23 @@ def find_delete(file_name):
 
             if len(pos) > 0:
                 colvalue =  re.findall(r"@" + pos + "=(.*?)/\*",line) 
+                strcolvalue = sep.join(colvalue).rstrip()
 
+                """
+                binlog文件对 timestamp 列是以时间戳记录整型数字，需转换为字符串
+                时间戳:1482325511 转换为：2016-12-21 21:05:11
+                """                
+                if pos in posvalue and strcolvalue <> "0":
+                    timeArray = time.localtime(int(strcolvalue))
+                    strcolvalue = "'" + time.strftime("%Y-%m-%d %H:%M:%S",timeArray) + "'"
+                
+                if pos in posvalue and strcolvalue == "0":
+                    strcolvalue = "'0000-00-00 00:00:00'"
+                     
                 if len(content) == 0 :
-                    content = sep.join(colvalue).rstrip()
-
+                    content = strcolvalue
                 else:
-                    content += ',' + sep.join(colvalue).rstrip()
+                    content += ',' + strcolvalue
                                 
                 need_write = True
             
@@ -214,10 +242,14 @@ if len(lookfor) == 0:
     print "the look for key must input something text"
     sys.exit(0)
     
-if modifytype.upper() == "UPDATE" and len(columns) == 0:
+if modifytype.upper() == "UPDATE" and (len(columns) == 0 or len(timepos) ==0):
     print "rollback UPDATE statement,must input the columns pos number"
+    print "rollback UPDATE statement,timestamp columns must input pos number"
     sys.exit(0)
 
+if modifytype.upper() == "UPDATE" and len(timepos) == 0:
+    print "rollback UPDATE statement,must input the time columns pos number"
+    sys.exit(0)
     
 """ 先根据关键字查找要回滚的SQL操作 """
 process_filename = find_text(file_name,lookfor)
@@ -228,7 +260,7 @@ if modifytype.upper() == "INSERT":
     find_insert(process_filename)
     
 elif modifytype.upper() == "DELETE":
-    find_delete(process_filename)       
+    find_delete(process_filename, timepos)       
 
 elif modifytype.upper() == "UPDATE":
-    find_update(process_filename,columns)
+    find_update(process_filename,columns,timepos)
