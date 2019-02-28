@@ -22,7 +22,7 @@ def find_text(file_name,lookfor):
     need_write = False
     fout_list = []
 
-    for line in fin.readlines():
+    for line in fin:
         if line[:13] == "SET TIMESTAMP":
             fout_list = []
             need_write = False
@@ -68,7 +68,7 @@ def find_update(file_name, columns, timepos):
     timelist = timepos.split(',')
 
     """循环处理文件中的每一行"""
-    for line in fin.readlines():
+    for line in fin:
         """对每一行文件,每个列pos都匹配一次,stupid logic"""
         for onepos in  posvalue:   
             poslist = onepos.split()
@@ -131,7 +131,7 @@ def find_insert(file_name):
     content = ''
     
     """循环处理文件中的每一行"""
-    for line in fin.readlines():
+    for line in fin:
 
         """
         mysqlbinlog 解释出来的文件,对于insert语句,
@@ -183,7 +183,7 @@ def find_delete(file_name, timepos):
     posvalue = timepos.split(',')
 
     """循环处理文件中的每一行"""
-    for line in fin.readlines():
+    for line in fin:
 
         """
         mysqlbinlog 解释出来的文件,对于delete语句,
