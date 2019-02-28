@@ -20,23 +20,22 @@ def find_text(file_name,lookfor):
     fin = open(file_name)
     fout = open(file_name + '.out','w+')
     need_write = False
-    fout_list = []
+    fout_list = ""
 
     for line in fin:
         if line[:13] == "SET TIMESTAMP":
-            fout_list = []
+            fout_list = ""
             need_write = False
 
-            fout_list.append(line)
+            fout_list += line
         
         elif line[:11] == "COMMIT/*!*/":
-            fout_list.append(line)
+            fout_list += line
             if need_write:
-                for out_line in fout_list:
-                    fout.write(out_line)
+                fout.write(fout_list)
     
         else:        
-            fout_list.append(line)
+            fout_list += line
             line_pos = line.find(lookfor)
             if line_pos > 0:
                 need_write = True
