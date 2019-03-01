@@ -49,7 +49,7 @@ def find_update(file_name, columns, timepos):
     """
     mysqlbinlog处理后的binlog文件，查找where 和 set 区段中列的具体值 
     通过传入表结构中列位置处理
-    传入参数：文件名，列的位置
+    传入参数：文件名，列的位置, timestamp 字段列的位置
     """
 
     """输出文件名：原文件名后加 rollback"""
