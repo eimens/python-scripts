@@ -14,7 +14,7 @@ def find_text(file_name,lookfor):
     """
     mysqlbinlog处理后的binlog文件，根据查找关键字 look_key 
     查找具体的SQL语句，从SET TIMESTAMP 到 COMMIT 的一个区段完整信息
-    传入参数：文件名
+    传入参数：文件名,查找关键字
     """
 
     fin = open(file_name)
