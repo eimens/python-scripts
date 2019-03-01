@@ -247,7 +247,7 @@ if modifytype.upper() == "UPDATE" and (len(columns) == 0 or len(timepos) ==0):
     sys.exit(0)
 
 if modifytype.upper() == "UPDATE" and len(timepos) == 0:
-    print "rollback UPDATE statement,must input the time columns pos number"
+    print "rollback UPDATE statement,must input the timestamp columns pos number"
     sys.exit(0)
     
 """ 先根据关键字查找要回滚的SQL操作 """
