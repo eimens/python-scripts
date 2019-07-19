@@ -14,7 +14,7 @@ fout = open(file_name + '.out','a+')
 need_write = False
 fout_list = []
 
-for line in fin.readlines():
+for line in fin:
     if line[:13] == "SET TIMESTAMP":
         fout_list = []
         need_write = False
